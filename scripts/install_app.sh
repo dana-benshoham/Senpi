@@ -13,10 +13,10 @@ DEST_FOLDER="$1"
 pushd $DEST_FOLDER
 
 # Create a virtual environment in the destination folder
-python3 -m venv venv
+python3 -m venv app_venv
 
 # Activate the virtual environment
-source "venv/bin/activate"
+source "app_venv/bin/activate"
 
 # Install the requirements from the requirements.txt file
 pip install -r requirements.txt

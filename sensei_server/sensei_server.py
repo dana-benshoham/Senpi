@@ -64,7 +64,7 @@ def on_connect(device_id, device_info):
 
 	install_sensei_app(drop_path, SENSEI_APP_DEPLOYMENT_PATH)
 
-	sensei_app_process = subprocess.run([f"{SENSEI_APP_DEPLOYMENT_PATH}/venv/bin/python",f"{SENSEI_APP_DEPLOYMENT_PATH}/src/main.py"])
+	sensei_app_process = subprocess.run([f"{SENSEI_APP_DEPLOYMENT_PATH}/app_venv/bin/python", f"{SENSEI_APP_DEPLOYMENT_PATH}/src/main.py"])
 
 
 def on_disconnect(device_id, device_info):
