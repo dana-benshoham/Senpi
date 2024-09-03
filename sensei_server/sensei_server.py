@@ -31,12 +31,12 @@ def uninstall_sensei(installed_path):
 		print(f"an error occured: {e}")
 
 def make_install_script_exe(dest):
-	os.chmod(f"{dest}/install.sh", stat.S_IRWXU)
+	os.chmod(f"{dest}/install_app.sh", stat.S_IRWXU)
 
-def install_sensei(source, dest):
+def install_sensei_app(source, dest):
 	shutil.copytree(source, dest)
 	make_install_script_exe(dest)
-	command = f"{dest}/install.sh {dest}"
+	command = f"{dest}/install_app.sh {dest}"
 	print(f"Running install script: {command}")
 	subprocess.run(command, shell = True, executable="/bin/bash")
 
@@ -56,14 +56,13 @@ def on_connect(device_id, device_info):
 	print("Waiting for device mounting...")
 	time.sleep(5)
 	drop_path = find_drop()
-	print(drop_path)
 	if drop_path == None:
 		print("sensei app was not found")
 		return
 
 	uninstall_sensei(SENSEI_APP_DEPLOYMENT_PATH)	
 
-	install_sensei(drop_path, SENSEI_APP_DEPLOYMENT_PATH)
+	install_sensei_app(drop_path, SENSEI_APP_DEPLOYMENT_PATH)
 
 	sensei_app_process = subprocess.run([f"{SENSEI_APP_DEPLOYMENT_PATH}/venv/bin/python",f"{SENSEI_APP_DEPLOYMENT_PATH}/src/main.py"])
 

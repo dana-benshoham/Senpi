@@ -1,0 +1,12 @@
+[Unit]
+Description = Sensei Server Service
+
+[Service]
+ExecStart=/home/sensei/Documents/Senpi/scripts/load_server.sh
+Restart=always
+User=sensei
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target 
