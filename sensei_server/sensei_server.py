@@ -30,6 +30,12 @@ def uninstall_sensei(installed_path):
 	except Exception as e:
 		print(f"an error occured: {e}")
 
+def run_app(app_path):
+	command = f"{SENSEI_APP_DEPLOYMENT_PATH}/app_venv/bin/python {SENSEI_APP_DEPLOYMENT_PATH}/src/main.py"
+	print(f"Running Sensei app: {command}")
+	sensei_app_process = subprocess.run(command, shell = True, executable="/bin/bash")
+
+
 def make_install_script_exe(dest):
 	os.chmod(f"{dest}/install_app.sh", stat.S_IRWXU)
 
@@ -64,8 +70,7 @@ def on_connect(device_id, device_info):
 
 	install_sensei_app(drop_path, SENSEI_APP_DEPLOYMENT_PATH)
 
-	sensei_app_process = subprocess.run([f"{SENSEI_APP_DEPLOYMENT_PATH}/app_venv/bin/python", f"{SENSEI_APP_DEPLOYMENT_PATH}/src/main.py"])
-
+	run_app(SENSEI_APP_DEPLOYMENT_PATH)
 
 def on_disconnect(device_id, device_info):
 	print(f"Disconnected: {device_info_str(device_info)}")

@@ -3,10 +3,10 @@ Description = Sensei Server Service
 
 [Service]
 ExecStart=/home/sensei/Documents/Senpi/scripts/load_server.sh
-Restart=always
+Restart=on-failure
 User=sensei
-StandardOutput=journal
-StandardError=journal
+StandardOutput=journal+console
+StandardError=journal+console
 
 [Install]
 WantedBy=multi-user.target 
