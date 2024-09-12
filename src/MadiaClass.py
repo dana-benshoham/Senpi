@@ -55,7 +55,6 @@ class Media:
             self.band = band
             self.intensity = intensity
             self.bpm = 30 + ((self.intensity / 100) * 300)
-            # self.maps_to_bpm()
             metronome(self.bpm, DURATION)
 
     def maps_to_bpm(self):

@@ -22,5 +22,5 @@ class FileIF(SenseiInputIF):
                         yield line
                 print(f"test {file} finished succesfully, sleeping for {self.sleep_after_test} seconds")
                 time.sleep(self.sleep_after_test)
-            print(f"all files in {self.file_path} ran succesfully, sleeping for {self.sleep_suite} seconds")
+            print(f"all files in {self.file_path} ran successfully, sleeping for {self.sleep_suite} seconds")
             time.sleep(self.sleep_suite)
