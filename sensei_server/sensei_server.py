@@ -14,7 +14,7 @@ def device_info_str(device_info):
 		{device_info[DEVTYPE]} - \
 		{device_info[ID_VENDOR]})"
 
-def is_usb_device_connected(device_info):
+def is_usb_device_connected(device_info): 
 	return device_info[DEVTYPE] == 'usb_device'
 
 def uninstall_sensei(installed_path):
@@ -75,12 +75,16 @@ def on_connect(device_id, device_info):
 def on_disconnect(device_id, device_info):
 	print(f"Disconnected: {device_info_str(device_info)}")
 
-# sensei_app_process = subprocess.run([f"{SENSEI_APP_DEPLOYMENT_PATH}/venv/bin/python",f"{SENSEI_APP_DEPLOYMENT_PATH}/src/main.py"])
-monitor = USBMonitor()
-monitor.start_monitoring(on_connect=on_connect, on_disconnect=on_disconnect)
+if is_usb_device_connected(device_info):
+	on_connect()
 
-try:
-	while True:
-		pass
-except KeyboardInterrupt:
-	monitor.start_monitoring()
+# sensei_app_process = subprocess.run([f"{SENSEI_APP_DEPLOYMENT_PATH}/venv/bin/python",f"{SENSEI_APP_DEPLOYMENT_PATH}/src/main.py"])
+# monitor = USBMonitor()
+# monitor.start_monitoring(on_connect=on_connect, on_disconnect=on_disconnect)
+
+# try:
+# 	while True:
+# 		pass
+# except KeyboardInterrupt:
+# 	monitor.start_monitoring()
+

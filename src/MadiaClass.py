@@ -4,6 +4,7 @@ import time
 import numpy as np
 import pygame
 from ParserClass import Parser
+import LedController
 
 # Constants
 FREQUENCY = 400
@@ -39,7 +40,7 @@ def metronome(bpm, duration):
 
 
 class Media:
-    def __init__(self, parser):
+    def __init__(self, parser : Parser):
         self.band = None
         self.intensity = None
         # self.frequency_queue = queue.Queue()
@@ -47,16 +48,23 @@ class Media:
         self.bpm = None
         self.stop_flag = False
         self.parser = parser
-
+        self.led = LedController.LedControllerClass()
         pygame.mixer.init()
+        self.update_led(operation=LedController.OperationType.ON)
+
+    def update_led(self, operation : LedController.OperationType, blink_time=0):
+        msg = LedController.Message(id=0, blink_time=blink_time, operation_type=operation)
+        self.led.add_message(msg)
 
     def sound_loop(self):
         for band, intensity in self.parser.get_detection():
             self.band = band
             self.intensity = intensity
             self.bpm = 30 + ((self.intensity / 100) * 300)
+            self.update_led(operation=LedController.OperationType.BLINK, blink_time=0.5)
             # self.maps_to_bpm()
             metronome(self.bpm, DURATION)
+            self.update_led(operation=LedController.OperationType.ON)
 
     def maps_to_bpm(self):
         self.bpm = ((self.intensity / 100) * 300)

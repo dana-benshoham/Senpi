@@ -3,6 +3,7 @@ import time
 
 from SenseiInputIFClass import SenseiInputIF
 from FileIFClass import FileIF
+# from SerialIFClass import UARTInterface
 from ParserClass import Parser
 from MadiaClass import Media
 import threading
@@ -14,6 +15,8 @@ FILE_TESTS = r"../tests"
 
 def main():
     input_if = FileIF(FILE_TESTS)
+    # input_if = UARTInterface()
+
     parser_input = Parser(input_if)
 
     media = Media(parser_input)

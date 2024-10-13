@@ -19,4 +19,8 @@ To create a new app drop to be installed run the script:
 create_drop.sh
 it uses the version.json to install a new version.
 
+# Raspberry Pi Setup
+## Install USRP Dependecies
+1. Enter https://pysdr.org/content/usrp.html and follow instructions.
+* it requires internet connection for apt-get installations and git clone
 
