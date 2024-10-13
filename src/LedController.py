@@ -11,6 +11,7 @@ class OperationType(Enum):
     ON = "On"
     OFF = "Off"
     BLINK = "Blink"
+    NONE = "None"
 
 @dataclass
 class Message:
@@ -23,6 +24,7 @@ class LedControllerClass:
         self.message_queue = queue.Queue()
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(LED_PIN, GPIO.OUT)
+        self.operation = OperationType.NONE
         self.blink_time = 0
         self.blink_thread = threading.Thread(target=self._blink)
         self.blink_thread.daemon = True  # Allows the program to exit even if this thread is running
@@ -48,9 +50,12 @@ class LedControllerClass:
                 time.sleep(self.blink_time)
             elif self.operation == OperationType.ON:
                 GPIO.output(LED_PIN, GPIO.HIGH)
+                self.operation = OperationType.NONE
             elif self.operation == OperationType.OFF:
                 GPIO.output(LED_PIN, GPIO.LOW)
-            elif self.operation == OperationType.None:
+                self.operation = OperationType.NONE
+            elif self.operation == OperationType.NONE:
+                pass
     
 
     def _run(self):
