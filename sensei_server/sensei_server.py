@@ -17,7 +17,7 @@ def device_info_str(device_info):
 def is_usb_device_connected(device_info): 
 	return device_info[DEVTYPE] == 'usb_device'
 
-def uninstall_sensei(installed_path):
+def uninstall_sensei(installed_path = SENSEI_APP_DEPLOYMENT_PATH):
 	try:
 		if sensei_app_process != None:
 			print(f"killing current running app...")
@@ -30,16 +30,15 @@ def uninstall_sensei(installed_path):
 	except Exception as e:
 		print(f"an error occured: {e}")
 
-def run_app(app_path):
-	command = f"{SENSEI_APP_DEPLOYMENT_PATH}/app_venv/bin/python {SENSEI_APP_DEPLOYMENT_PATH}/src/main.py"
+def run_app(app_path = SENSEI_APP_DEPLOYMENT_PATH):
+	command = f"{app_path}/app_venv/bin/python {app_path}/src/main.py"
 	print(f"Running Sensei app: {command}")
 	sensei_app_process = subprocess.run(command, shell = True, executable="/bin/bash")
-
 
 def make_install_script_exe(dest):
 	os.chmod(f"{dest}/install_app.sh", stat.S_IRWXU)
 
-def install_sensei_app(source, dest):
+def install_sensei_app(source, dest = SENSEI_APP_DEPLOYMENT_PATH):
 	shutil.copytree(source, dest)
 	make_install_script_exe(dest)
 	command = f"{dest}/install_app.sh {dest}"
@@ -66,17 +65,30 @@ def on_connect(device_id, device_info):
 		print("sensei app was not found")
 		return
 
-	uninstall_sensei(SENSEI_APP_DEPLOYMENT_PATH)	
+	uninstall_sensei()	
 
-	install_sensei_app(drop_path, SENSEI_APP_DEPLOYMENT_PATH)
+	install_sensei_app(drop_path)
 
-	run_app(SENSEI_APP_DEPLOYMENT_PATH)
+	run_app()
 
 def on_disconnect(device_id, device_info):
 	print(f"Disconnected: {device_info_str(device_info)}")
 
-if is_usb_device_connected(device_info):
-	on_connect()
+
+if __name__ == "__main__":
+	# Create the USBMonitor instance
+	monitor = USBMonitor()
+
+	# Get the current devices
+	devices_dict = monitor.get_available_devices()
+	for device_id, device_info in devices_dict.items():
+		on_connect(device_id=device_id, device_info=device_info)
+	
+	if sensei_app_process != None:
+		run_app()
+	
+	while True:
+		pass
 
 # sensei_app_process = subprocess.run([f"{SENSEI_APP_DEPLOYMENT_PATH}/venv/bin/python",f"{SENSEI_APP_DEPLOYMENT_PATH}/src/main.py"])
 # monitor = USBMonitor()
@@ -87,4 +99,5 @@ if is_usb_device_connected(device_info):
 # 		pass
 # except KeyboardInterrupt:
 # 	monitor.start_monitoring()
+
 
