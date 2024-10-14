@@ -5,6 +5,8 @@ import numpy as np
 import pygame
 from ParserClass import Parser
 import LedController
+import logging
+logger = logging.getLogger(__name__)
 
 # Constants
 FREQUENCY = 400
@@ -72,7 +74,7 @@ class Media:
         #     self.stop_flag = True
         #     self.bpm = new_frequency
 
-        print(self.bpm)
+        logger.debug(f"mapped intensity: {self.intensity} to bpm:{self.bpm}")
 
     def play_sound(self):
         while True:
@@ -80,19 +82,18 @@ class Media:
                 self.stop_flag = False
                 self.currently_playing = True
                 start_time = time.time()
-                print('test')
 
                 while time.time() - start_time < 9:
                     if self.stop_flag:
                         break
                     if self.bpm == 500:
-                        print(f"playing frequency: {self.bpm}")
+                        logger.debug(f"playing frequency: {self.bpm}")
                         metronome(self.bpm, 0.5)
                     else:
-                        print(f"playing frequency: {self.bpm}")
+                        logger.debug(f"playing frequency: {self.bpm}")
                         metronome(self.bpm, 0.5)
 
                 self.currently_playing = False
             else:
-                print('not entered')
+                logger.error('not entered')
             time.sleep(0.1)

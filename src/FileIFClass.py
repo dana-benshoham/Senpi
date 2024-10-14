@@ -3,10 +3,10 @@ import os
 import time
 from os import listdir
 from os.path import isfile, join
-
+import Logger
 from SenseiInputIFClass import SenseiInputIF
 
-
+logger = Logger.get_logger()
 class FileIF(SenseiInputIF):
     def __init__(self, file_path):
         self.file_path = f"{os.path.dirname(os.path.realpath(__file__))}/{file_path}"
@@ -23,9 +23,9 @@ class FileIF(SenseiInputIF):
                 with open(f"{self.file_path}/{file}", 'r') as file_input:
                     for line in file_input:
                         bytes_array = bytes(int(line[i:i+8],2) for i in range(0,64,8))
-                        print(f"bytes array: {bytes_array}")
+                        logger.debug(f"bytes array: {bytes_array}")
                         yield bytes_array
-                print(f"test {file} finished succesfully, sleeping for {self.sleep_after_test} seconds")
+                logger.info(f"test {file} finished succesfully, sleeping for {self.sleep_after_test} seconds")
                 time.sleep(self.sleep_after_test)
-            print(f"all files in {self.file_path} ran succesfully, sleeping for {self.sleep_suite} seconds")
+            logger.info(f"all files in {self.file_path} ran succesfully, sleeping for {self.sleep_suite} seconds")
             time.sleep(self.sleep_suite)

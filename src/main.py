@@ -7,7 +7,16 @@ from FileIFClass import FileIF
 from ParserClass import Parser
 from MadiaClass import Media
 import threading
+import logging
+import logging.handlers
 
+# Configure the root logger
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    handlers=[
+                        logging.handlers.TimedRotatingFileHandler('app.log', when='midnight', interval=1, backupCount=7),
+                        logging.StreamHandler()
+                    ])
 
 # Constants
 FILE_TESTS = r"../tests"

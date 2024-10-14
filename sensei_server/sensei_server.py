@@ -4,12 +4,30 @@ import os, stat
 import shutil
 import subprocess
 import time
+import sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src"))
+import Logger
 
 USB_MOUNTING_TIME = 1
 SENSEI_APP_DEPLOYMENT_PATH = "/home/sensei/Documents/Sensei_app"
 SENSEI_APP_DEPLOYMENT_PATH_WIN = "C:\\Users\\adare\\repos\\Senpi\\Deployed\\Sensei_app"
 SENSEI_APP_DEPLOYMENT_PATH = SENSEI_APP_DEPLOYMENT_PATH_WIN
 sensei_app_process = None
+logger = Logger.get_logger()
+
+def copy_log_file(source_dir, destination_dir, filename="app.log"):
+    # Construct the full file paths
+    source_file = os.path.join(source_dir, filename)
+    destination_file = os.path.join(destination_dir, filename)
+    
+    # Copy the file
+    try:
+        shutil.copy(source_file, destination_file)
+        logger.info(f"Copied {filename} from {source_dir} to {destination_dir}")
+    except FileNotFoundError:
+        logger.error(f"File {filename} not found in {source_dir}")
+    except Exception as e:
+        logger.error(f"An error occurred: {e}")
 
 def device_info_str(device_info):
 	return f" \
@@ -24,25 +42,35 @@ def is_usb_device_connected(device_info):
 def uninstall_sensei(installed_path = SENSEI_APP_DEPLOYMENT_PATH):
 	try:
 		if sensei_app_process != None:
-			print(f"killing current running app...")
+			logger.debug(f"killing current running app...")
 			sensei_app_process.kill()
-		print(f"removing '{installed_path}' ...")
+		logger.debug(f"removing '{installed_path}' ...")
 		shutil.rmtree(installed_path)
-		print(f"folder '{installed_path} has been removed.")
+		logger.info(f"folder '{installed_path} has been removed.")
 	except FileNotFoundError:
-		print(f"folder '{installed_path} does not exist.")
+		logger.error(f"folder '{installed_path} does not exist.")
 	except Exception as e:
-		print(f"an error occured: {e}")
+		logger.error(f"an error occured: {e}")
 
 def run_app_win(app_path = SENSEI_APP_DEPLOYMENT_PATH):
-	command = f"python {app_path}\\src\\main.py"
-	print(f"Running Sensei app: {command}")
-	sensei_app_process = subprocess.run(["powershell", "-Command", command], shell=True, capture_output=True, text=True)
+	# command = f'start powershell -NoExit -Command "python {app_path}\\src\\main.py"'
+	command = f'{app_path}\\app_venv\\Scripts\\python {app_path}\\src\\main.py'
+	logger.info(f"Running Sensei app: {command}")
+	# Run the command and capture the output
+	sensei_app_process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, bufsize=1)
+	process = sensei_app_process
+	# Read the output line by line
+	for line in iter(process.stdout.readline, ''):
+		print(line, end='')
+
+	# Ensure the process has finished
+	process.stdout.close()
+	process.wait()
 
 
 def run_app(app_path = SENSEI_APP_DEPLOYMENT_PATH):
 	command = f"{app_path}/app_venv/bin/python {app_path}/src/main.py"
-	print(f"Running Sensei app: {command}")
+	logger.info(f"Running Sensei app: {command}")
 	sensei_app_process = subprocess.run(command, shell = True, executable="/bin/bash")
 
 def make_install_script_exe(dest):
@@ -53,9 +81,10 @@ def install_sensei_app_win(source, dest = SENSEI_APP_DEPLOYMENT_PATH):
 
 def install_sensei_app(source, dest = SENSEI_APP_DEPLOYMENT_PATH):
 	shutil.copytree(source, dest)
+	logger.info("Drop copied to local memory")
 	make_install_script_exe(dest)
 	command = f"{dest}/install_app.sh {dest}"
-	print(f"Running install script: {command}")
+	logger.debug(f"Running install script: {command}")
 	subprocess.run(command, shell = True, executable="/bin/bash")
 
 def find_drop_win(drop_name):
@@ -77,15 +106,20 @@ def find_drop(drop_name):
 
 def on_connect(device_id, device_info):
 	if not is_usb_device_connected(device_info):
+		logger.debug("Not a USB Storage Device, Skipping...")
 		return
 	
-	print("Waiting for device mounting...")
+	logger.debug("Waiting for device mounting...")
 	time.sleep(USB_MOUNTING_TIME)
+
+	copy_log_file(SENSEI_APP_DEPLOYMENT_PATH_WIN, "D:\\"),
+
 	drop_path = find_drop_win("sensei")
 	if drop_path == None:
-		print("sensei app was not found")
+		logger.error("app was not found")
 		return
 
+	logger.info("app was found, version: -")
 	uninstall_sensei()	
 
 	install_sensei_app_win(drop_path)
@@ -93,20 +127,24 @@ def on_connect(device_id, device_info):
 	run_app_win()
 
 def on_disconnect(device_id, device_info):
-	print(f"Disconnected: {device_info_str(device_info)}")
+	logger.info(f"Disconnected: {device_info_str(device_info)}")
 
 
 if __name__ == "__main__":
+	logger.info("Server Started")
 	# Create the USBMonitor instance
 	monitor = USBMonitor()
 
+	logger.info("Enumerating USB Devices")
 	# Get the current devices
 	devices_dict = monitor.get_available_devices()
 	for device_id, device_info in devices_dict.items():
+		logger.debug(f"Found device with id: {device_id} and info: {device_info}")
+		logger.debug(f"Searching Drop")
 		on_connect(device_id=device_id, device_info=device_info)
 	
-	if sensei_app_process != None:
-		run_app()
+	if sensei_app_process == None:
+		run_app_win()
 	
 	while True:
 		pass

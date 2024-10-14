@@ -3,7 +3,9 @@ import queue
 import time
 from dataclasses import dataclass
 from enum import Enum
-import RPi.GPIO as GPIO
+# import RPi.GPIO as GPIO
+import logging
+logger = logging.getLogger(__name__)
 
 LED_PIN = 17
 
@@ -22,8 +24,8 @@ class Message:
 class LedControllerClass:
     def __init__(self):
         self.message_queue = queue.Queue()
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(LED_PIN, GPIO.OUT)
+        # GPIO.setmode(GPIO.BCM)
+        # GPIO.setup(LED_PIN, GPIO.OUT)
         self.operation = OperationType.NONE
         self.blink_time = 0
         self.blink_thread = threading.Thread(target=self._blink)
@@ -36,25 +38,25 @@ class LedControllerClass:
 
     def operate_led(self, operation : OperationType, blink_time):
         self.blink_time = 0
-        print(f"requested to {operation} with blink time {blink_time}")
+        logger.info(f"requested to {operation} with blink time {blink_time}")
         self.operation = operation
         self.blink_time = blink_time
 
     def _blink(self):
-        self.is_blinking = True
+        self.is_blinking = False
         while self.is_blinking:
             if self.operation == OperationType.BLINK and self.blink_time != 0: 
-                GPIO.output(LED_PIN, GPIO.HIGH)
+                # GPIO.output(LED_PIN, GPIO.HIGH)
                 time.sleep(self.blink_time)
-                GPIO.output(LED_PIN, GPIO.LOW)
+                # GPIO.output(LED_PIN, GPIO.LOW)
                 time.sleep(self.blink_time)
             elif self.operation == OperationType.ON:
-                GPIO.output(LED_PIN, GPIO.HIGH)
+                # GPIO.output(LED_PIN, GPIO.HIGH)
                 self.operation = OperationType.NONE
             elif self.operation == OperationType.OFF:
-                GPIO.output(LED_PIN, GPIO.LOW)
+                # GPIO.output(LED_PIN, GPIO.LOW)
                 self.operation = OperationType.NONE
-            elif self.operation == OperationType.NONE:
+            else:
                 pass
     
 
@@ -67,7 +69,7 @@ class LedControllerClass:
                 self.operate_led(message.operation_type, message.blink_time)
             except queue.Empty:
                 if not self.is_running:
-                    print("not running exiting...")
+                    logger.info("not running exiting...")
                     return 
 
     def add_message(self, message):
@@ -77,7 +79,7 @@ class LedControllerClass:
         self.is_running = False
         self.is_blinking = False
         GPIO.cleanup()
-        print("All messages have been processed.")
+        logger.debug("All messages have been processed.")
 
 # Example usage
 if __name__ == "__main__":
