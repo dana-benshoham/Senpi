@@ -6,14 +6,25 @@ import subprocess
 import time
 import sys
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src"))
-import Logger
+
+import logging
+import logging.handlers
+
+# Configure the root logger
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    handlers=[
+                        logging.handlers.TimedRotatingFileHandler('server.log', when='midnight', interval=1, backupCount=7),
+                        logging.StreamHandler()
+                    ])
+
+logger = logging.getLogger("Server")
 
 USB_MOUNTING_TIME = 1
 SENSEI_APP_DEPLOYMENT_PATH = "/home/sensei/Documents/Sensei_app"
 SENSEI_APP_DEPLOYMENT_PATH_WIN = "C:\\Users\\adare\\repos\\Senpi\\Deployed\\Sensei_app"
 SENSEI_APP_DEPLOYMENT_PATH = SENSEI_APP_DEPLOYMENT_PATH_WIN
 sensei_app_process = None
-logger = Logger.get_logger()
 
 def copy_log_file(source_dir, destination_dir, filename="app.log"):
     # Construct the full file paths
@@ -54,18 +65,11 @@ def uninstall_sensei(installed_path = SENSEI_APP_DEPLOYMENT_PATH):
 
 def run_app_win(app_path = SENSEI_APP_DEPLOYMENT_PATH):
 	# command = f'start powershell -NoExit -Command "python {app_path}\\src\\main.py"'
-	command = f'{app_path}\\app_venv\\Scripts\\python {app_path}\\src\\main.py'
+	command = f'C:\\Users\\adare\\repos\\Senpi\\venv\\Scripts\\python.exe {app_path}\\src\\main.py'
 	logger.info(f"Running Sensei app: {command}")
 	# Run the command and capture the output
-	sensei_app_process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, bufsize=1)
+	sensei_app_process = subprocess.Popen(command)
 	process = sensei_app_process
-	# Read the output line by line
-	for line in iter(process.stdout.readline, ''):
-		print(line, end='')
-
-	# Ensure the process has finished
-	process.stdout.close()
-	process.wait()
 
 
 def run_app(app_path = SENSEI_APP_DEPLOYMENT_PATH):
@@ -77,7 +81,7 @@ def make_install_script_exe(dest):
 	os.chmod(f"{dest}/install_app.sh", stat.S_IRWXU)
 
 def install_sensei_app_win(source, dest = SENSEI_APP_DEPLOYMENT_PATH):
-	shutil.copytree(source, dest)
+	shutil.copytree(source, dest, dirs_exist_ok=True)
 
 def install_sensei_app(source, dest = SENSEI_APP_DEPLOYMENT_PATH):
 	shutil.copytree(source, dest)
@@ -107,17 +111,18 @@ def find_drop(drop_name):
 def on_connect(device_id, device_info):
 	if not is_usb_device_connected(device_info):
 		logger.debug("Not a USB Storage Device, Skipping...")
-		return
+		return False
 	
 	logger.debug("Waiting for device mounting...")
 	time.sleep(USB_MOUNTING_TIME)
 
-	copy_log_file(SENSEI_APP_DEPLOYMENT_PATH_WIN, "D:\\"),
+	copy_log_file(SENSEI_APP_DEPLOYMENT_PATH_WIN, "D:\\", "app.log"),
+	copy_log_file(SENSEI_APP_DEPLOYMENT_PATH_WIN, "D:\\", "server.log"),
 
 	drop_path = find_drop_win("sensei")
 	if drop_path == None:
 		logger.error("app was not found")
-		return
+		return False
 
 	logger.info("app was found, version: -")
 	uninstall_sensei()	
@@ -125,6 +130,8 @@ def on_connect(device_id, device_info):
 	install_sensei_app_win(drop_path)
 
 	run_app_win()
+
+	return True
 
 def on_disconnect(device_id, device_info):
 	logger.info(f"Disconnected: {device_info_str(device_info)}")
@@ -141,7 +148,9 @@ if __name__ == "__main__":
 	for device_id, device_info in devices_dict.items():
 		logger.debug(f"Found device with id: {device_id} and info: {device_info}")
 		logger.debug(f"Searching Drop")
-		on_connect(device_id=device_id, device_info=device_info)
+		result = on_connect(device_id=device_id, device_info=device_info)
+		if result==True:
+			break
 	
 	if sensei_app_process == None:
 		run_app_win()
@@ -149,14 +158,5 @@ if __name__ == "__main__":
 	while True:
 		pass
 
-# sensei_app_process = subprocess.run([f"{SENSEI_APP_DEPLOYMENT_PATH}/venv/bin/python",f"{SENSEI_APP_DEPLOYMENT_PATH}/src/main.py"])
-# monitor = USBMonitor()
-# monitor.start_monitoring(on_connect=on_connect, on_disconnect=on_disconnect)
-
-# try:
-# 	while True:
-# 		pass
-# except KeyboardInterrupt:
-# 	monitor.start_monitoring()
 
 
