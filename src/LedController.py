@@ -3,7 +3,7 @@ import queue
 import time
 from dataclasses import dataclass
 from enum import Enum
-# import RPi.GPIO as GPIO
+import RPi.GPIO as GPIO
 import logging
 logger = logging.getLogger(__name__)
 
@@ -24,8 +24,8 @@ class Message:
 class LedControllerClass:
     def __init__(self):
         self.message_queue = queue.Queue()
-        # GPIO.setmode(GPIO.BCM)
-        # GPIO.setup(LED_PIN, GPIO.OUT)
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(LED_PIN, GPIO.OUT)
         self.operation = OperationType.NONE
         self.blink_time = 0
         self.blink_thread = threading.Thread(target=self._blink)
@@ -43,18 +43,18 @@ class LedControllerClass:
         self.blink_time = blink_time
 
     def _blink(self):
-        self.is_blinking = False
+        self.is_blinking = True
         while self.is_blinking:
             if self.operation == OperationType.BLINK and self.blink_time != 0: 
-                # GPIO.output(LED_PIN, GPIO.HIGH)
+                GPIO.output(LED_PIN, GPIO.HIGH)
                 time.sleep(self.blink_time)
-                # GPIO.output(LED_PIN, GPIO.LOW)
+                GPIO.output(LED_PIN, GPIO.LOW)
                 time.sleep(self.blink_time)
             elif self.operation == OperationType.ON:
-                # GPIO.output(LED_PIN, GPIO.HIGH)
+                GPIO.output(LED_PIN, GPIO.HIGH)
                 self.operation = OperationType.NONE
             elif self.operation == OperationType.OFF:
-                # GPIO.output(LED_PIN, GPIO.LOW)
+                GPIO.output(LED_PIN, GPIO.LOW)
                 self.operation = OperationType.NONE
             else:
                 pass

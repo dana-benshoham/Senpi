@@ -22,8 +22,6 @@ logger = logging.getLogger("Server")
 
 USB_MOUNTING_TIME = 1
 SENSEI_APP_DEPLOYMENT_PATH = "/home/sensei/Documents/Sensei_app"
-SENSEI_APP_DEPLOYMENT_PATH_WIN = "C:\\Users\\adare\\repos\\Senpi\\Deployed\\Sensei_app"
-SENSEI_APP_DEPLOYMENT_PATH = SENSEI_APP_DEPLOYMENT_PATH_WIN
 sensei_app_process = None
 
 def copy_log_file(source_dir, destination_dir, filename="app.log"):
