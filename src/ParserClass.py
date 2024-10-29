@@ -1,6 +1,8 @@
 # Imports
 from SenseiInputIFClass import SenseiInputIF
 from dataclasses import dataclass
+import logging
+logger = logging.getLogger(__name__)
 
 BARKER = b'\xFE\xCA'
 RX_BARKER = b'\xfe\xca'
@@ -57,6 +59,10 @@ class Parser:
     def __init__(self, input_if: SenseiInputIF):
         self.input_if = input_if
         self.input_if.setup(protocol_wrapper(USRP_CONFIG(address=3, value=6, length=6)))
+
+    def close(self):
+        logger.info("Closing Parser...")
+        self.input_if.close()
 
     def get_detection(self):
         for packet in self.input_if.read_input():

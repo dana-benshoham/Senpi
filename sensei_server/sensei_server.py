@@ -114,10 +114,10 @@ def on_connect(device_id, device_info):
 	logger.debug("Waiting for device mounting...")
 	time.sleep(USB_MOUNTING_TIME)
 
-	copy_log_file(SENSEI_APP_DEPLOYMENT_PATH_WIN, "D:\\", "app.log"),
-	copy_log_file(SENSEI_APP_DEPLOYMENT_PATH_WIN, "D:\\", "server.log"),
+	copy_log_file(SENSEI_APP_DEPLOYMENT_PATH, "/home/sensei", "app.log"),
+	copy_log_file(SENSEI_APP_DEPLOYMENT_PATH, "/home/sensei", "server.log"),
 
-	drop_path = find_drop_win("sensei")
+	drop_path = find_drop("sensei")
 	if drop_path == None:
 		logger.error("app was not found")
 		return False
@@ -125,9 +125,9 @@ def on_connect(device_id, device_info):
 	logger.info("app was found, version: -")
 	uninstall_sensei()	
 
-	install_sensei_app_win(drop_path)
+	install_sensei_app(drop_path)
 
-	run_app_win()
+	run_app()
 
 	return True
 
@@ -151,7 +151,7 @@ if __name__ == "__main__":
 			break
 	
 	if sensei_app_process == None:
-		run_app_win()
+		run_app()
 	
 	while True:
 		pass

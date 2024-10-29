@@ -12,6 +12,10 @@ class FileIF(SenseiInputIF):
         self.sleep_suite = 30
         self.sleep_after_test = 2
 
+
+    def close(self):
+        pass
+
     def setup(self, packet):
         pass
 

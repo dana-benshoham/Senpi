@@ -75,11 +75,11 @@ class LedControllerClass:
     def add_message(self, message):
         self.message_queue.put(message)
 
-    def stop(self):
+    def close(self):
+        logger.info("Closing LedController...")
         self.is_running = False
         self.is_blinking = False
         GPIO.cleanup()
-        logger.debug("All messages have been processed.")
 
 # Example usage
 if __name__ == "__main__":
@@ -95,4 +95,5 @@ if __name__ == "__main__":
     led.add_message(msg)
     time.sleep(2)  # Simulate some delay in message arrival
     # Wait for all messages to be processed
-    led.stop()
+    led.close()
+    logger.debug("All messages have been processed.")

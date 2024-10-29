@@ -3,6 +3,7 @@ import queue
 import time
 import numpy as np
 import pygame
+import threading
 from ParserClass import Parser
 import LedController
 import logging
@@ -54,9 +55,27 @@ class Media:
         pygame.mixer.init()
         self.update_led(operation=LedController.OperationType.ON)
 
+    def close(self):
+        logger.info("Closing Media...")
+        self.parser.close()
+        self.led.close()
+
     def update_led(self, operation : LedController.OperationType, blink_time=0):
         msg = LedController.Message(id=0, blink_time=blink_time, operation_type=operation)
         self.led.add_message(msg)
+
+    def start_loop(self):
+        self.listener_thread = threading.Thread(target=self.sound_loop)
+        self.listener_thread.start()
+        self.is_listening = True
+        logger.info("Sound Loop started")
+
+    def stop_loop(self):
+        self.is_listening = False
+        if self.listener_thread is not None:
+            self.listener_thread.join()
+            logger.debug("Sound Loop stopped")
+    
 
     def sound_loop(self):
         for band, intensity in self.parser.get_detection():

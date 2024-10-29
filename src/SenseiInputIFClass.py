@@ -9,3 +9,7 @@ class SenseiInputIF(ABC):
     @abstractmethod
     def setup(self, packet):
         pass
+
+    @abstractmethod
+    def close(self):
+        pass

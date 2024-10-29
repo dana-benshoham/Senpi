@@ -6,18 +6,18 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-DEFAULT_COM_NUMBER = 5
+DEFAULT_COM_NUMBER = 'AMA1'
 DEFAULT_BAUD_RATE = 115200
 BARKER= b'\xFE\xCA'
 RX_BARKER= b'\xfe\xca'
 
 class UARTInterface(SenseiInputIF):
-    def __init__(self, port = f'COM{DEFAULT_COM_NUMBER}', baudrate=DEFAULT_BAUD_RATE, bytesize=8, parity='N', stopbits=1, timeout=1):
+    def __init__(self, port = f'/dev/serial0', baudrate=DEFAULT_BAUD_RATE, bytesize=8, parity='N', stopbits=1, timeout=1):
         self.serial_port = serial.Serial()
         self.serial_port.port = port
         self.serial_port.baudrate = baudrate
         self.serial_port.bytesize = bytesize
-        self.serial_port.parity = parity
+        self.serial_port.parity = parity   
         self.serial_port.stopbits = stopbits
         self.serial_port.timeout = timeout
         self.is_listening = False
@@ -66,12 +66,13 @@ class UARTInterface(SenseiInputIF):
         logger.debug("Listener started")
 
     def stop_listener(self):
-        self.is_listening = False
+        self.close()
         if self.listener_thread is not None:
             self.listener_thread.join()
             logger.debug("Listener stopped")
 
     def close(self):
+        self.is_listening = False
         if self.serial_port.is_open:
             self.serial_port.close()
             logger.info(f"UART on {self.serial_port.port} closed")
@@ -88,4 +89,3 @@ if __name__ == "__main__":
             pass  # Keep the main thread alive to listen to UART
     except KeyboardInterrupt:
         uart.stop_listener()
-        uart.close()
