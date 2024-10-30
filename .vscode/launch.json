@@ -5,6 +5,16 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Sensei Bootloader",
+            "request": "launch",
+            "type": "debugpy",
+            "program": "sensei_bootloader/sensei_bootloader.py",
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/server_venv/bin"
+            }
+        },
+        {
             "name": "SenseiApp",
             "type": "debugpy",
             "request": "launch",

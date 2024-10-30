@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Check if the correct number of arguments is provided
+if [ "$#" -ne 1 ]; then
+    echo "Usage: $0 <app_folder>"
+    exit 1
+fi
+
 # Variables
 APP_PATH="$1"
 FGPA_BIN_NAME = "b205_dummy3.bin"

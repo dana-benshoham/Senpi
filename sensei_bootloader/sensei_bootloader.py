@@ -21,7 +21,7 @@ logging.basicConfig(level=logging.DEBUG,
 logger = logging.getLogger("Bootloader")
 
 USB_MOUNTING_TIME = 1
-SENSEI_APP_DEPLOYMENT_PATH = "/home/sensei/Documents/Sensei_app"
+SENSEI_APP_DEPLOYMENT_PATH = "/home/sensei/Documents/Installed_app/Sensei_app"
 sensei_app_process = None
 
 def copy_log_file(source_dir, destination_dir, filename="app.log"):
@@ -70,8 +70,7 @@ def make_script_exe(dest):
 def install_sensei_app_win(source, dest = SENSEI_APP_DEPLOYMENT_PATH):
 	shutil.copytree(source, dest, dirs_exist_ok=True)
 
-def reinstall_sensei_app(source, dest = SENSEI_APP_DEPLOYMENT_PATH):
-	installed_path = dest
+def reinstall_sensei_app(drop_path, installed_path = SENSEI_APP_DEPLOYMENT_PATH):
 	try:
 		if sensei_app_process != None:
 			logger.debug(f"killing current running app...")
@@ -80,15 +79,16 @@ def reinstall_sensei_app(source, dest = SENSEI_APP_DEPLOYMENT_PATH):
 		shutil.rmtree(installed_path)
 		logger.info(f"folder '{installed_path} has been removed.")
 	except FileNotFoundError:
-		logger.error(f"folder '{installed_path} does not exist.")
+		logger.warning(f"folder '{installed_path} does not exist.")
 	except Exception as e:
 		logger.error(f"an error occured: {e}")
 
-	make_script_exe(f"{dest}/install_app.sh")
+	script_path = f"{drop_path}/scripts/install_app.sh"
+	make_script_exe(script_path)
+	command = f"{script_path} {drop_path} {os.path.dirname(installed_path)} {os.path.basename(os.path.dirname(drop_path))}"
 	logger.debug(f"Running install script: {command}")
-	command = f"{dest}/install_app.sh {source} {dest}"
-	logger.info("Drop copied to local memory")
 	subprocess.run(command, shell = True, executable="/bin/bash")
+	logger.info("Drop copied to installed path")
 
 def find_drop_win(drop_name):
 	MEDIA_PATH = "D:\\"
@@ -109,9 +109,10 @@ def find_drop(drop_name):
 
 def run_backup(drop_path):
 	logger.info(f"Backing Up...")
-	make_script_exe(f"{drop_path}/backup.sh")
+	script_path = f"{drop_path}/scripts/backup.sh"
+	make_script_exe(script_path)
+	command = f"{script_path} {SENSEI_APP_DEPLOYMENT_PATH} {drop_path}"
 	logger.debug(f"Running install script: {command}")
-	command = f"{drop_path}/backup.sh {SENSEI_APP_DEPLOYMENT_PATH} {drop_path}"
 	subprocess.run(command, shell = True, executable="/bin/bash")
 
 def read_version(drop_path):

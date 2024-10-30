@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+# Check if the correct number of arguments is provided
+if [ "$#" -ne 2 ]; then
+    echo "Usage: $0 <src_folder> <dest_folder>"
+    exit 1
+fi
+
 # Variables
 SRC_FOLDER="$1"
 DEST_FOLDER="$2"
