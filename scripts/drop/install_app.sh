@@ -14,8 +14,9 @@ FOLDER_NAME="$3"
 # Copy Drop From DoK to Local Documents
 cp $SRC_FOLDER $DEST_FOLDER -r
 
+echo "source folder: $SRC_FOLDER dest folder: $DEST_FOLDER folder name: $FOLDER_NAME" 
 # Navigate to the destination folder
-pushd $DEST_FOLDER/$FOLDER_NAME
+cd "$DEST_FOLDER/$FOLDER_NAME"
 
 # Create a virtual environment in the destination folder
 python3 -m venv app_venv
@@ -25,5 +26,4 @@ source "app_venv/bin/activate"
 
 # Install the requirements from the requirements.txt file
 pip install -r requirements.txt
-popd
 echo "Installation completed!"

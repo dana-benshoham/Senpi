@@ -85,7 +85,7 @@ def reinstall_sensei_app(drop_path, installed_path = SENSEI_APP_DEPLOYMENT_PATH)
 
 	script_path = f"{drop_path}/scripts/install_app.sh"
 	make_script_exe(script_path)
-	command = f"{script_path} {drop_path} {os.path.dirname(installed_path)} {os.path.basename(os.path.dirname(drop_path))}"
+	command = f"{script_path} {drop_path} {os.path.dirname(installed_path)} {os.path.basename(installed_path)}"
 	logger.debug(f"Running install script: {command}")
 	subprocess.run(command, shell = True, executable="/bin/bash")
 	logger.info("Drop copied to installed path")
@@ -112,7 +112,7 @@ def run_backup(drop_path):
 	script_path = f"{drop_path}/scripts/backup.sh"
 	make_script_exe(script_path)
 	command = f"{script_path} {SENSEI_APP_DEPLOYMENT_PATH} {drop_path}"
-	logger.debug(f"Running install script: {command}")
+	logger.debug(f"Running backup script: {command}")
 	subprocess.run(command, shell = True, executable="/bin/bash")
 
 def read_version(drop_path):
