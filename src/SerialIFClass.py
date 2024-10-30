@@ -6,13 +6,13 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-DEFAULT_COM_NUMBER = 'AMA1'
+DEFAULT_COM_NUMBER = '/dev/ttyUSB0'
 DEFAULT_BAUD_RATE = 115200
 BARKER= b'\xFE\xCA'
 RX_BARKER= b'\xfe\xca'
 
 class UARTInterface(SenseiInputIF):
-    def __init__(self, port = f'/dev/serial0', baudrate=DEFAULT_BAUD_RATE, bytesize=8, parity='N', stopbits=1, timeout=1):
+    def __init__(self, port = DEFAULT_COM_NUMBER, baudrate=DEFAULT_BAUD_RATE, bytesize=8, parity='N', stopbits=1, timeout=1):
         self.serial_port = serial.Serial()
         self.serial_port.port = port
         self.serial_port.baudrate = baudrate
