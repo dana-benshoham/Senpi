@@ -8,6 +8,7 @@ pushd $SENPI_DIR
 
 mkdir $DROP_DIR
 cp src/ $DROP_DIR -r
+cp FGPA/ $DROP_DIR -r
 mkdir $DROP_DIR/scripts
 cp scripts/install_app.sh $DROP_DIR/scripts/install_app.sh 
 cp scripts/run_app.sh $DROP_DIR/scripts/run_app.sh 

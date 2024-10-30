@@ -60,7 +60,7 @@ def run_app_win(app_path = SENSEI_APP_DEPLOYMENT_PATH):
 def run_app(app_path = SENSEI_APP_DEPLOYMENT_PATH):
 	script_path = f"{app_path}/scripts/run_app.sh"
 	make_script_exe(script_path)
-	command = script_path
+	command = f"{script_path} {app_path}"
 	logger.info(f"Running Sensei app: {command}")
 	sensei_app_process = subprocess.run(command, shell = True, executable="/bin/bash")
 
