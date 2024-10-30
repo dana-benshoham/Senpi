@@ -107,18 +107,12 @@ def find_drop(drop_name):
 	app_folder = output[1] if len(output) > 1 else None
 	return app_folder 
 
-def find_backup_script(drop_path):
-	substring = "backup.sh"
-	command = f"find {drop_path} -type d -iname '*{substring}*'"	
-	result  = subprocess.run(command, shell=True, capture_output=True, text=True)
-	output = result.stdout.strip().split('\n')
-	script_path = output[1] if len(output) > 1 else None
-	return script_path 
-
-def run_backup(script_path):
-	copy_log_file(SENSEI_APP_DEPLOYMENT_PATH, "/home/sensei", "app.log")
-	copy_log_file(SENSEI_APP_DEPLOYMENT_PATH, "/home/sensei", "bootloader.log")
-	return True
+def run_backup(drop_path):
+	logger.info(f"Backing Up...")
+	make_script_exe(f"{drop_path}/backup.sh")
+	logger.debug(f"Running install script: {command}")
+	command = f"{drop_path}/backup.sh {SENSEI_APP_DEPLOYMENT_PATH} {drop_path}"
+	subprocess.run(command, shell = True, executable="/bin/bash")
 
 def read_version(drop_path):
 	import json
@@ -139,18 +133,16 @@ def on_connect(device_id, device_info):
 
 	if drop_path == None:
 		logger.error("app was not found")
-		return False
+		return True
 
 	logger.info(f"app was found, version: {read_version(drop_path)}")
 
-	backup_script_path = find_backup_script(drop_path)
-	result = run_backup(backup_script_path) if backup_script_path != None else False
-	logger.info(f"Is Backup Made {result}")
+	run_backup(drop_path) 
 
 	reinstall_sensei_app(drop_path)
 
-	run_app()
-
+	sensei_app_process = None
+	
 	return True
 
 def on_disconnect(device_id, device_info):
