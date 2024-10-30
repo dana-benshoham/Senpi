@@ -13,7 +13,7 @@ if so, it checks for a a version number, if it is higher than the current instal
 
 # App
 ## Install
-the server uses the install_app.sh to install the app.
+the bootloader uses the install_app.sh to install the app.
 ## Drop
 To create a new app drop to be installed run the script:
 create_drop.sh

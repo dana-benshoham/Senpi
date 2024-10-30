@@ -14,11 +14,11 @@ import logging.handlers
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     handlers=[
-                        logging.handlers.TimedRotatingFileHandler('server.log', when='midnight', interval=1, backupCount=7),
+                        logging.handlers.TimedRotatingFileHandler('bootloader.log', when='midnight', interval=1, backupCount=7),
                         logging.StreamHandler()
                     ])
 
-logger = logging.getLogger("Server")
+logger = logging.getLogger("Bootloader")
 
 USB_MOUNTING_TIME = 1
 SENSEI_APP_DEPLOYMENT_PATH = "/home/sensei/Documents/Sensei_app"
@@ -48,7 +48,30 @@ def is_usb_device_connected(device_info):
 	return device_info[DEVTYPE] == 'usb_device' or \
 		   device_info[DEVTYPE] == 'USBSTOR'
 
-def uninstall_sensei(installed_path = SENSEI_APP_DEPLOYMENT_PATH):
+def run_app_win(app_path = SENSEI_APP_DEPLOYMENT_PATH):
+	# command = f'start powershell -NoExit -Command "python {app_path}\\src\\main.py"'
+	command = f'C:\\Users\\adare\\repos\\Senpi\\venv\\Scripts\\python.exe {app_path}\\src\\main.py'
+	logger.info(f"Running Sensei app: {command}")
+	# Run the command and capture the output
+	sensei_app_process = subprocess.Popen(command)
+	process = sensei_app_process
+
+
+def run_app(app_path = SENSEI_APP_DEPLOYMENT_PATH):
+	script_path = f"{app_path}/scripts/run_app.sh"
+	make_script_exe(script_path)
+	command = script_path
+	logger.info(f"Running Sensei app: {command}")
+	sensei_app_process = subprocess.run(command, shell = True, executable="/bin/bash")
+
+def make_script_exe(dest):
+	os.chmod(dest, stat.S_IRWXU)
+
+def install_sensei_app_win(source, dest = SENSEI_APP_DEPLOYMENT_PATH):
+	shutil.copytree(source, dest, dirs_exist_ok=True)
+
+def reinstall_sensei_app(source, dest = SENSEI_APP_DEPLOYMENT_PATH):
+	installed_path = dest
 	try:
 		if sensei_app_process != None:
 			logger.debug(f"killing current running app...")
@@ -61,32 +84,10 @@ def uninstall_sensei(installed_path = SENSEI_APP_DEPLOYMENT_PATH):
 	except Exception as e:
 		logger.error(f"an error occured: {e}")
 
-def run_app_win(app_path = SENSEI_APP_DEPLOYMENT_PATH):
-	# command = f'start powershell -NoExit -Command "python {app_path}\\src\\main.py"'
-	command = f'C:\\Users\\adare\\repos\\Senpi\\venv\\Scripts\\python.exe {app_path}\\src\\main.py'
-	logger.info(f"Running Sensei app: {command}")
-	# Run the command and capture the output
-	sensei_app_process = subprocess.Popen(command)
-	process = sensei_app_process
-
-
-def run_app(app_path = SENSEI_APP_DEPLOYMENT_PATH):
-	command = f"{app_path}/app_venv/bin/python {app_path}/src/main.py"
-	logger.info(f"Running Sensei app: {command}")
-	sensei_app_process = subprocess.run(command, shell = True, executable="/bin/bash")
-
-def make_install_script_exe(dest):
-	os.chmod(f"{dest}/install_app.sh", stat.S_IRWXU)
-
-def install_sensei_app_win(source, dest = SENSEI_APP_DEPLOYMENT_PATH):
-	shutil.copytree(source, dest, dirs_exist_ok=True)
-
-def install_sensei_app(source, dest = SENSEI_APP_DEPLOYMENT_PATH):
-	shutil.copytree(source, dest)
-	logger.info("Drop copied to local memory")
-	make_install_script_exe(dest)
-	command = f"{dest}/install_app.sh {dest}"
+	make_script_exe(f"{dest}/install_app.sh")
 	logger.debug(f"Running install script: {command}")
+	command = f"{dest}/install_app.sh {source} {dest}"
+	logger.info("Drop copied to local memory")
 	subprocess.run(command, shell = True, executable="/bin/bash")
 
 def find_drop_win(drop_name):
@@ -106,6 +107,26 @@ def find_drop(drop_name):
 	app_folder = output[1] if len(output) > 1 else None
 	return app_folder 
 
+def find_backup_script(drop_path):
+	substring = "backup.sh"
+	command = f"find {drop_path} -type d -iname '*{substring}*'"	
+	result  = subprocess.run(command, shell=True, capture_output=True, text=True)
+	output = result.stdout.strip().split('\n')
+	script_path = output[1] if len(output) > 1 else None
+	return script_path 
+
+def run_backup(script_path):
+	copy_log_file(SENSEI_APP_DEPLOYMENT_PATH, "/home/sensei", "app.log")
+	copy_log_file(SENSEI_APP_DEPLOYMENT_PATH, "/home/sensei", "bootloader.log")
+	return True
+
+def read_version(drop_path):
+	import json
+	version = None
+	with open(f"{drop_path}/version.json", 'r') as file:
+		version = json.load(file)
+	return version
+
 def on_connect(device_id, device_info):
 	if not is_usb_device_connected(device_info):
 		logger.debug("Not a USB Storage Device, Skipping...")
@@ -114,18 +135,19 @@ def on_connect(device_id, device_info):
 	logger.debug("Waiting for device mounting...")
 	time.sleep(USB_MOUNTING_TIME)
 
-	copy_log_file(SENSEI_APP_DEPLOYMENT_PATH, "/home/sensei", "app.log"),
-	copy_log_file(SENSEI_APP_DEPLOYMENT_PATH, "/home/sensei", "server.log"),
-
 	drop_path = find_drop("sensei")
+
 	if drop_path == None:
 		logger.error("app was not found")
 		return False
 
-	logger.info("app was found, version: -")
-	uninstall_sensei()	
+	logger.info(f"app was found, version: {read_version(drop_path)}")
 
-	install_sensei_app(drop_path)
+	backup_script_path = find_backup_script(drop_path)
+	result = run_backup(backup_script_path) if backup_script_path != None else False
+	logger.info(f"Is Backup Made {result}")
+
+	reinstall_sensei_app(drop_path)
 
 	run_app()
 
@@ -136,7 +158,7 @@ def on_disconnect(device_id, device_info):
 
 
 if __name__ == "__main__":
-	logger.info("Server Started")
+	logger.info("Bootloader Started")
 	# Create the USBMonitor instance
 	monitor = USBMonitor()
 

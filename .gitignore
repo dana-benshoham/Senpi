@@ -1,6 +1,6 @@
 *.idea*
 *pycache*
 *venv*
-Sensei_app/
+Sensei_app*/
 Deployed/
 *.log

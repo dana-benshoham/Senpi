@@ -7,7 +7,11 @@ if [ "$#" -ne 1 ]; then
 fi
 
 # Variables
-DEST_FOLDER="$1"
+SRC_FOLDER="$1"
+DEST_FOLDER="$2"
+
+# Copy Drop From DoK to Local Documents
+cp $SRC_FOLDER $DEST_FOLDER -r
 
 # Navigate to the destination folder
 pushd $DEST_FOLDER
