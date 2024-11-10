@@ -3,4 +3,5 @@
 *venv*
 Sensei_app*/
 Deployed/
+*.log.*
 *.log

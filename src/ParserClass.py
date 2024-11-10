@@ -19,8 +19,6 @@ def protocol_wrapper(config : USRP_CONFIG):
                   + config.value.to_bytes(1, byteorder="big")   \
                   + config.length.to_bytes(1, byteorder="big")  
 
-def calculate_intensity(detection):
-    return detection["maxVal"] * (2 ** detection["BlkExp"])
 
 def extract_fields(data):
     if len(data) != 8:
@@ -52,8 +50,7 @@ def extract_fields(data):
         "BlkExp": BlkExp
     }
 
-def calculate_band(detection):
-    return 420
+
 
 class Parser:
     def __init__(self, input_if: SenseiInputIF, log_level = logging.DEBUG):
@@ -65,9 +62,7 @@ class Parser:
         logger.info("Closing Parser...")
         self.input_if.close()
 
-    def get_detection(self):
+    def get_band(self):
         for packet in self.input_if.read_input():
-            detection = extract_fields(packet)
-            intensity = calculate_intensity(detection)
-            band = calculate_band(detection)
-            yield int(band), int(intensity)
+            band = extract_fields(packet)
+            yield band

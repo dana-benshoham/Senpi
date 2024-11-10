@@ -1,0 +1,35 @@
+{
+  "interface":
+  {
+    "type": "UART",
+    "config":
+    {
+      "port": "/dev/ttyS0",
+      "baudrate": 115200,
+      "bytesize": 8,
+      "parity": "N",
+      "stopbits": 1,
+      "timeout": 1
+    },
+    "log_level": "DEBUG"
+  },
+  "parser": {
+    "log_level": "DEBUG"
+  },
+    "detector":
+    {
+      "log_level": "DEBUG",
+      "snr": 20,
+      "max_bin_width": 2,
+      "min_amp": -50
+    },
+    "media":
+    {
+      "log_level": "DEBUG"
+    },
+    "led_controller":
+    {
+      "log_level": "DEBUG",
+      "pin": 17
+    }
+}

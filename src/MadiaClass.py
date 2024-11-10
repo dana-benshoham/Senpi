@@ -4,7 +4,7 @@ import time
 import numpy as np
 import pygame
 import threading
-from ParserClass import Parser
+from DetectorClass import Detector
 import LedController
 import logging
 logger = logging.getLogger(__name__)
@@ -43,15 +43,16 @@ def metronome(bpm, duration):
 
 
 class Media:
-    def __init__(self, parser : Parser, log_level = logging.DEBUG):
+    def __init__(self, detector : Detector, led_control, led_blink_time = 0.5, log_level = logging.DEBUG):
         self.band = None
         self.intensity = None
         # self.frequency_queue = queue.Queue()
         self.currently_playing = False
         self.bpm = None
         self.stop_flag = False
-        self.parser = parser
-        self.led = LedController.LedControllerClass()
+        self.detector = detector
+        self.led = led_control
+        self.blink_time = 0.5
         pygame.mixer.init()
         self.update_led(operation=LedController.OperationType.ON)
         logger.setLevel(level=log_level)
@@ -79,11 +80,12 @@ class Media:
     
 
     def sound_loop(self):
-        for band, intensity in self.parser.get_detection():
+        for band, intensity in self.detector.get_detection():
             self.band = band
             self.intensity = intensity
             self.bpm = 30 + ((self.intensity / 100) * 300)
-            self.update_led(operation=LedController.OperationType.BLINK, blink_time=0.5)
+            self.update_led(operation=LedController.OperationType.BLINK, blink_time=self.blink_time)
+            logger.info(f"Playing Detection - BPM={self.bpm}")
             # self.maps_to_bpm()
             metronome(self.bpm, DURATION)
             self.update_led(operation=LedController.OperationType.ON)

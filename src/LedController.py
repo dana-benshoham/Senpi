@@ -22,10 +22,11 @@ class Message:
     operation_type: OperationType
 
 class LedControllerClass:
-    def __init__(self):
+    def __init__(self, led_pin=LED_PIN, log_level = logging.DEBUG):
         self.message_queue = queue.Queue()
         GPIO.setmode(GPIO.BCM)
-        GPIO.setup(LED_PIN, GPIO.OUT)
+        GPIO.setup(led_pin, GPIO.OUT)
+        logger.setLevel(log_level)
         self.operation = OperationType.NONE
         self.blink_time = 0
         self.blink_thread = threading.Thread(target=self._blink)

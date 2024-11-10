@@ -6,7 +6,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-DEFAULT_COM_NUMBER = '/dev/ttyUSB0'
+DEFAULT_COM_NUMBER = '/dev/ttyS0'
 DEFAULT_BAUD_RATE = 115200
 BARKER= b'\xFE\xCA'
 RX_BARKER= b'\xfe\xca'
