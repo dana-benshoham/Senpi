@@ -56,9 +56,10 @@ def calculate_band(detection):
     return 420
 
 class Parser:
-    def __init__(self, input_if: SenseiInputIF):
+    def __init__(self, input_if: SenseiInputIF, log_level = logging.DEBUG):
         self.input_if = input_if
         self.input_if.setup(protocol_wrapper(USRP_CONFIG(address=3, value=6, length=6)))
+        logger.setLevel(level=log_level)
 
     def close(self):
         logger.info("Closing Parser...")

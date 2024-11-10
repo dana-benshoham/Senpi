@@ -12,7 +12,7 @@ BARKER= b'\xFE\xCA'
 RX_BARKER= b'\xfe\xca'
 
 class UARTInterface(SenseiInputIF):
-    def __init__(self, port = DEFAULT_COM_NUMBER, baudrate=DEFAULT_BAUD_RATE, bytesize=8, parity='N', stopbits=1, timeout=1):
+    def __init__(self, port = DEFAULT_COM_NUMBER, baudrate=DEFAULT_BAUD_RATE, bytesize=8, parity='N', stopbits=1, timeout=1, log_level = logging.DEBUG):
         self.serial_port = serial.Serial()
         self.serial_port.port = port
         self.serial_port.baudrate = baudrate
@@ -22,6 +22,7 @@ class UARTInterface(SenseiInputIF):
         self.serial_port.timeout = timeout
         self.is_listening = False
         self.listener_thread = None
+        logger.setLevel(level=log_level)
         self.initialize()
 
     def initialize(self):

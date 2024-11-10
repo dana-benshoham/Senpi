@@ -43,7 +43,7 @@ def metronome(bpm, duration):
 
 
 class Media:
-    def __init__(self, parser : Parser):
+    def __init__(self, parser : Parser, log_level = logging.DEBUG):
         self.band = None
         self.intensity = None
         # self.frequency_queue = queue.Queue()
@@ -54,6 +54,7 @@ class Media:
         self.led = LedController.LedControllerClass()
         pygame.mixer.init()
         self.update_led(operation=LedController.OperationType.ON)
+        logger.setLevel(level=log_level)
 
     def close(self):
         logger.info("Closing Media...")
