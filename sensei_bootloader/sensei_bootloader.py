@@ -48,15 +48,6 @@ def is_usb_device_connected(device_info):
 	return device_info[DEVTYPE] == 'usb_device' or \
 		   device_info[DEVTYPE] == 'USBSTOR'
 
-def run_app_win(app_path = SENSEI_APP_DEPLOYMENT_PATH):
-	# command = f'start powershell -NoExit -Command "python {app_path}\\src\\main.py"'
-	command = f'C:\\Users\\adare\\repos\\Senpi\\venv\\Scripts\\python.exe {app_path}\\src\\main.py'
-	logger.info(f"Running Sensei app: {command}")
-	# Run the command and capture the output
-	sensei_app_process = subprocess.Popen(command)
-	process = sensei_app_process
-
-
 def run_app(app_path = SENSEI_APP_DEPLOYMENT_PATH):
 	script_path = f"{app_path}/scripts/run_app.sh"
 	make_script_exe(script_path)
@@ -66,9 +57,6 @@ def run_app(app_path = SENSEI_APP_DEPLOYMENT_PATH):
 
 def make_script_exe(dest):
 	os.chmod(dest, stat.S_IRWXU)
-
-def install_sensei_app_win(source, dest = SENSEI_APP_DEPLOYMENT_PATH):
-	shutil.copytree(source, dest, dirs_exist_ok=True)
 
 def reinstall_sensei_app(drop_path, installed_path = SENSEI_APP_DEPLOYMENT_PATH):
 	try:
@@ -90,13 +78,6 @@ def reinstall_sensei_app(drop_path, installed_path = SENSEI_APP_DEPLOYMENT_PATH)
 	subprocess.run(command, shell = True, executable="/bin/bash")
 	logger.info("Drop copied to installed path")
 
-def find_drop_win(drop_name):
-	MEDIA_PATH = "D:\\"
-	substring = drop_name
-	command = f"Get-ChildItem -Path {MEDIA_PATH} -Directory -Filter '*{substring}*' | Select-Object -ExpandProperty Name"
-	result = subprocess.run(["powershell", "-Command", command], shell=True, capture_output=True, text=True)
-	output = result.stdout.strip().split('\r\n')
-	return f"{MEDIA_PATH}{output[0]}" if len(output) > 0 else None 
 
 def find_drop(drop_name):
 	MEDIA_PATH = "/media/sensei"

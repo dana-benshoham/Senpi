@@ -14,6 +14,7 @@ mkdir $DROP_DIR/scripts
 cp scripts/drop/* $DROP_DIR/scripts/ -r
 cp version.json $DROP_DIR
 cp requirements.txt $DROP_DIR
+cp config.json $DROP_DIR
 cp tests/ $DROP_DIR -r
 popd
 ls "$SENPI_DIR/$DROP_DIR" -l
